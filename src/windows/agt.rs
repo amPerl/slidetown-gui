@@ -4,10 +4,12 @@ use eframe::egui;
 use slidetown::parsers::*;
 
 use super::LevelModifierWindow;
+use super::LoiWindow;
 
 #[derive(Debug)]
 pub enum AgtEntry {
     LevelModifier(LevelModifierWindow),
+    Loi(LoiWindow),
     Unknown(agt::Entry),
 }
 
@@ -67,10 +69,17 @@ impl AgtWindow {
                     .last()
                     .unwrap_or(&entry.path)
                     .to_lowercase();
+                let entry_ext = entry_filename.split('.').last();
+
                 if entry_filename == "levelmodifier.dat" {
                     agt_entries.push(AgtEntry::LevelModifier(
                         LevelModifierWindow::from_agt_entry(self.path.clone(), entry),
                     ));
+                } else if entry_ext.unwrap_or_default() == "loi" {
+                    agt_entries.push(AgtEntry::Loi(LoiWindow::from_agt_entry(
+                        self.path.clone(),
+                        entry,
+                    )));
                 } else {
                     agt_entries.push(AgtEntry::Unknown(entry));
                 }
@@ -102,21 +111,23 @@ impl AgtWindow {
 
         egui::Window::new(&self.title)
             .open(&mut self.open)
+            .scroll(true)
             .show(ctx, |ui| {
-                egui::ScrollArea::auto_sized().show(ui, |ui| {
-                    ui.label(format!("{} files:", data.header.file_count));
+                ui.label(format!("{} files:", data.header.file_count));
 
-                    for entry in data.entries.iter_mut() {
-                        match entry {
-                            AgtEntry::LevelModifier(ref mut lm_window) => {
-                                lm_window.display(ctx, ui);
-                            }
-                            AgtEntry::Unknown(ref mut entry) => {
-                                ui.label(&entry.path);
-                            }
+                for entry in data.entries.iter_mut() {
+                    match entry {
+                        AgtEntry::LevelModifier(ref mut lm_window) => {
+                            lm_window.display(ctx, ui);
+                        }
+                        AgtEntry::Loi(ref mut loi_window) => {
+                            loi_window.display(ctx, ui);
+                        }
+                        AgtEntry::Unknown(ref mut entry) => {
+                            ui.label(&entry.path);
                         }
                     }
-                });
+                }
             });
     }
 }
