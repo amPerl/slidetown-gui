@@ -2,15 +2,22 @@
 name = "slidetown-gui"
 version = "0.1.0"
 authors = ["amPerl"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anyhow = "1.0.58"
 camino = { version = "1.0.9", features = ["serde1"] }
-eframe = { version = "0.18.0", features = ["persistence"] }
+eframe = { git = "https://github.com/amPerl/egui", branch = "feature/wgpu-depth-texture", default-features = false, features = ["default_fonts", "persistence", "wgpu"] }
 native-dialog = "0.6.3"
 serde = { version = "1.0.137", features = ["derive"] }
 serde_json = "1.0.82"
-slidetown = { path = '../slidetown' }
+slidetown = { path = '../slidetown/slidetown' }
+nif = { path = '../../nif' }
+bytemuck = "1.12.1"
+glam = { version = "0.21.3", features = ["bytemuck"] }
+egui-gizmo = { path = "../../egui-gizmo" }
+dolly = { git = "https://github.com/amPerl/dolly", branch = "z-up" }
+
+[features]

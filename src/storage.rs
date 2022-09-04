@@ -28,6 +28,5 @@ pub fn prompt_save_project_file(existing_path: Option<Utf8PathBuf>) -> Option<Ut
         .show_save_single_file()
         .ok()
         .flatten()
-        .map(|path| Utf8PathBuf::from_path_buf(path).ok())
-        .flatten()
+        .and_then(|path| Utf8PathBuf::from_path_buf(path).ok())
 }
