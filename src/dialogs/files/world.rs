@@ -179,6 +179,7 @@ impl ProjectFileDialog for WorldDirDialog {
             available_tracks,
         };
         me.load_track("Main", frame);
+        me.nif_widget.reset_camera_from_bounds();
         me
     }
 

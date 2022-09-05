@@ -23,6 +23,8 @@ impl ProjectFileDialog for NifFileDialog {
         let mut nif_widget = NifWidget::new(render_state);
         nif_widget.set_nif(&data, render_state, 0.0, None, None);
 
+        nif_widget.reset_camera_from_bounds();
+
         Self {
             path,
             data,

@@ -26,6 +26,7 @@ pub struct NifWidget {
     dolly_camera: CameraRig,
     camera: Camera,
     model_rotation: glam::Quat,
+    combined_bounds: [f32; 3],
 }
 
 impl NifWidget {
@@ -54,7 +55,15 @@ impl NifWidget {
                 .build(),
             camera,
             model_rotation: glam::Quat::IDENTITY,
+            combined_bounds: [0.0; 3],
         }
+    }
+
+    pub fn reset_camera_from_bounds(&mut self) {
+        let bounds = self.combined_bounds;
+        let horiz_distance = bounds[0].max(bounds[1]) / 2.0;
+        self.dolly_camera.driver_mut::<Position>().position =
+            dolly::glam::Vec3::new(horiz_distance, horiz_distance, bounds[2] * 2.0);
     }
 
     pub fn clear_nifs(&mut self, render_state: &eframe::egui_wgpu::RenderState) {
@@ -85,10 +94,7 @@ impl NifWidget {
 
         nif_render_resources.set_nif(nif, lod_distance, group, instances);
 
-        let bounds = nif_render_resources.combined_bounds;
-        let horiz_distance = bounds[0].max(bounds[1]) / 2.0;
-        self.dolly_camera.driver_mut::<Position>().position =
-            dolly::glam::Vec3::new(horiz_distance, horiz_distance, bounds[2] * 2.0);
+        self.combined_bounds = nif_render_resources.combined_bounds;
     }
 
     pub fn add_nif(
@@ -108,11 +114,7 @@ impl NifWidget {
 
         nif_render_resources.add_nif(nif, lod_distance, group, instances);
 
-        let bounds = nif_render_resources.combined_bounds;
-        let horiz_distance = bounds[0].max(bounds[1]) / 2.0;
-        self.dolly_camera.driver_mut::<Position>().position =
-            dolly::glam::Vec3::new(horiz_distance, horiz_distance, bounds[2] * 2.0);
-        self.light.position = [bounds[0] * -2.0, bounds[1] * 2.0, bounds[2] * 2.0];
+        self.combined_bounds = nif_render_resources.combined_bounds;
     }
 
     pub fn show(
@@ -204,7 +206,6 @@ impl NifWidget {
             let light = self.light;
             let model_rotation = self.model_rotation;
 
-            // Wgpu rendering
             let cb = egui_wgpu::CallbackFn::new()
                 .prepare(move |device, queue, paint_callback_resources| {
                     let resources: &mut NifRenderResources =

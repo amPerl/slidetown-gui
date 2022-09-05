@@ -64,6 +64,8 @@ impl ProjectFileDialog for LbfFileDialog {
             // );
         }
 
+        nif_widget.reset_camera_from_bounds();
+
         eprintln!(
             "finished! total elapsed {}s",
             lbf_start.elapsed().as_secs_f64()
