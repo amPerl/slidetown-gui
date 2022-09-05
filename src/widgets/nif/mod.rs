@@ -221,6 +221,28 @@ impl NifWidget {
             };
             ui.painter().add(callback);
 
+            let overlay_top_left = rect.left_top() + egui::vec2(4.0, 4.0);
+            let overlay_bottom_right = rect.right_bottom() - egui::vec2(4.0, 4.0);
+            let overlay_rect = egui::Rect::from_min_max(overlay_top_left, overlay_bottom_right);
+            ui.allocate_ui_at_rect(overlay_rect, |ui| {
+                egui::Frame::canvas(ui.style()).show(ui, |ui| {
+                    ui.horizontal(|ui| {
+                        ui.label(format!(
+                            "Position: {:02} {:02} {:02}",
+                            self.camera.eye.x, self.camera.eye.y, self.camera.eye.z
+                        ));
+                        if ui.button("Copy Jump").clicked() {
+                            ui.output().copied_text = format!(
+                                "/jump {:02} {:02} {:02}",
+                                self.camera.eye.x,
+                                self.camera.eye.y,
+                                self.dolly_camera.driver_mut::<YawPitch>().yaw_degrees + 90.0
+                            );
+                        }
+                    })
+                })
+            });
+
             let gizmo = Gizmo::new("nif_gizmo")
                 .view_matrix(self.camera.build_view_matrix().to_cols_array_2d())
                 .projection_matrix(self.camera.build_projection_matrix().to_cols_array_2d())
