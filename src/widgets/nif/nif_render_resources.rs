@@ -116,8 +116,9 @@ impl NifRenderResources {
     pub fn paint<'rpass>(&'rpass self, rpass: &mut wgpu::RenderPass<'rpass>) {
         self.untextured_mesh_pipeline.set(rpass);
 
-        for mesh in self.meshes.values() {
+        for (group, mesh) in self.meshes.iter() {
             if let Some((vertex_buffer, index_buffer, instance_buffer)) = mesh.buffers() {
+                rpass.push_debug_group(group);
                 rpass.set_vertex_buffer(0, vertex_buffer.slice(..));
                 rpass.set_vertex_buffer(1, instance_buffer.slice(..));
                 rpass.set_index_buffer(index_buffer.slice(..), wgpu::IndexFormat::Uint32);
@@ -126,6 +127,7 @@ impl NifRenderResources {
                     0,
                     0..mesh.instances.len() as _,
                 );
+                rpass.pop_debug_group();
             }
         }
     }

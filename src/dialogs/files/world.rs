@@ -143,7 +143,7 @@ impl WorldDirDialog {
                 &nif,
                 render_state,
                 0.0,
-                Some(format!("modeltable_{}", model.index)),
+                Some(format!("modeltable_{}_{}", model.index, model.file_name)),
                 instances,
             );
         }
