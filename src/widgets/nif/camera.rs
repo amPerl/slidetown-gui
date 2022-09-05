@@ -25,7 +25,7 @@ impl Default for Camera {
             target: (0.0, 0.0, 0.0).into(),
             up: glam::Vec3::Z,
             aspect_ratio: 1.0,
-            fov_y: 45.0,
+            fov_y: 60.0,
             z_near: 1.0,
             z_far: 100000.0,
         }
