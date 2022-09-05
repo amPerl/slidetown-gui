@@ -660,6 +660,7 @@ dependencies = [
 [[package]]
 name = "egui-gizmo"
 version = "0.7.0"
+source = "git+https://github.com/amPerl/egui-gizmo?branch=egui-fork#6563746d75aeb54aba48bba70ea8fa721a63d9c2"
 dependencies = [
  "egui",
  "glam",
@@ -1456,6 +1457,7 @@ dependencies = [
 [[package]]
 name = "nif"
 version = "0.4.0"
+source = "git+https://github.com/amPerl/nif#f0c72ee0a98dbb84d49155a88ad28bb8e9f2f0a3"
 dependencies = [
  "anyhow",
  "binread",
@@ -1939,6 +1941,7 @@ dependencies = [
 [[package]]
 name = "slidetown"
 version = "0.1.0"
+source = "git+https://github.com/amPerl/slidetown#f9cdf594b9925d0fd2da81c088679ef7b81cbeb5"
 dependencies = [
  "anyhow",
  "binrw",

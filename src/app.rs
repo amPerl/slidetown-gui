@@ -17,6 +17,8 @@ pub struct SlidetownApp {
     recent_projects: Vec<ProjectFilePath>,
     current_project_dialog: Option<ProjectDialog>,
     new_project_dialog: Option<NewProjectDialog>,
+    #[serde(skip)]
+    initialized: bool,
 }
 
 impl SlidetownApp {
@@ -37,6 +39,10 @@ impl eframe::App for SlidetownApp {
     }
 
     fn update(&mut self, ctx: &eframe::egui::Context, frame: &mut eframe::Frame) {
+        if !self.initialized {
+            frame.set_window_title(&format!("slidetown v{}", env!("CARGO_PKG_VERSION")));
+            self.initialized = true;
+        }
         egui::TopBottomPanel::top("menu").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("Project", |ui| {

@@ -13,11 +13,11 @@ eframe = { git = "https://github.com/amPerl/egui", branch = "feature/wgpu-depth-
 native-dialog = "0.6.3"
 serde = { version = "1.0.137", features = ["derive"] }
 serde_json = "1.0.82"
-slidetown = { path = '../slidetown/slidetown' }
-nif = { path = '../../nif' }
+slidetown = { git = "https://github.com/amPerl/slidetown" }
+nif = { git = "https://github.com/amPerl/nif" }
 bytemuck = "1.12.1"
 glam = { version = "0.21.3", features = ["bytemuck"] }
-egui-gizmo = { path = "../../egui-gizmo" }
+egui-gizmo = { git = "https://github.com/amPerl/egui-gizmo", branch = "egui-fork" }
 dolly = { git = "https://github.com/amPerl/dolly", branch = "z-up" }
 
 [features]
