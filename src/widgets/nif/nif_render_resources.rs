@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use eframe::wgpu::{self, util::DeviceExt};
+use eframe::wgpu;
 use nif::Nif;
 
 use super::{

@@ -2,7 +2,6 @@ use std::{
     collections::{HashMap, HashSet},
     fs::File,
     io::{BufReader, Cursor, Read, Seek, SeekFrom},
-    time::Instant,
 };
 
 use camino::Utf8PathBuf;
@@ -31,8 +30,6 @@ impl WorldDirDialog {
         } = self;
 
         nif_widget.clear_nifs(render_state);
-
-        let track_start = Instant::now();
 
         let mut enabled_blocks = HashSet::new();
 
@@ -147,12 +144,6 @@ impl WorldDirDialog {
                 instances,
             );
         }
-
-        eprintln!(
-            "finished loading track {:?}! total elapsed {}s",
-            name,
-            track_start.elapsed().as_secs_f64()
-        );
     }
 }
 

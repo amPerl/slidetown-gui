@@ -52,17 +52,14 @@ impl DirDialogKind {
     }
 }
 
-pub fn get_dir_dialog(path: &Utf8PathBuf, entries: &[ProjectFilesEntry]) -> Option<DirDialogKind> {
-    let file_name = path.file_name().map(str::to_lowercase).unwrap();
+pub fn get_dir_dialog(_path: &Utf8PathBuf, entries: &[ProjectFilesEntry]) -> Option<DirDialogKind> {
+    // let file_name = path.file_name().map(str::to_lowercase).unwrap();
 
     fn has_file(name: &str, entries: &[ProjectFilesEntry]) -> bool {
-        entries
-            .iter()
-            .find(|e| match e {
-                ProjectFilesEntry::File(f) => f.file_name().unwrap() == name,
-                _ => false,
-            })
-            .is_some()
+        entries.iter().any(|e| match e {
+            ProjectFilesEntry::File(f) => f.file_name().unwrap() == name,
+            _ => false,
+        })
     }
 
     if has_file("terrain0.lf", entries) && has_file("blockObj0.LBF", entries) {
