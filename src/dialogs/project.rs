@@ -18,6 +18,8 @@ pub struct ProjectDialog {
     open_files: HashMap<Utf8PathBuf, Box<dyn ProjectFileDialog>>,
     #[serde(skip)]
     active_file: Option<Utf8PathBuf>,
+    #[serde(skip)]
+    request_open_file: Option<Utf8PathBuf>,
 }
 
 impl ProjectDialog {
@@ -27,7 +29,16 @@ impl ProjectDialog {
             files: None,
             open_files: Default::default(),
             active_file: None,
+            request_open_file: None,
         }
+    }
+
+    pub fn request_open_file(&mut self, path: Utf8PathBuf) {
+        let Self { files, project, .. } = self;
+        if files.is_none() {
+            *files = Some(project.enumerate_files());
+        }
+        self.request_open_file = Some(path);
     }
 
     pub fn project(&self) -> &Project {
@@ -44,7 +55,13 @@ impl ProjectDialog {
             files,
             open_files,
             active_file,
+            request_open_file,
         } = self;
+
+        if let Some(path) = request_open_file.take() {
+            open_files.insert(path.clone(), create_dialog_for_file(&path, frame));
+            *active_file = Some(path);
+        }
 
         egui::SidePanel::new(egui::panel::Side::Left, "project_panel")
             .min_width(200.0)
@@ -58,68 +75,63 @@ impl ProjectDialog {
                     .show(ui, |ui| {
                         if files.is_none() {
                             *files = Some(project.enumerate_files());
-                        } else {
-                            let entries = files.as_ref().unwrap();
-                            fn render_entries(
-                                ui: &mut egui::Ui,
-                                frame: &mut eframe::Frame,
-                                entries: &[ProjectFilesEntry],
-                                open_entries: &mut HashMap<Utf8PathBuf, Box<dyn ProjectFileDialog>>,
-                            ) {
-                                for entry in entries {
-                                    match entry {
-                                        ProjectFilesEntry::File(file) => {
-                                            let mut is_open = open_entries.contains_key(file);
-                                            let was_open = is_open;
-                                            ui.checkbox(&mut is_open, file.file_name().unwrap());
-                                            if was_open && !is_open {
-                                                open_entries.remove(file);
-                                            } else if !was_open && is_open {
-                                                open_entries.insert(
-                                                    file.clone(),
-                                                    create_dialog_for_file(file, frame),
-                                                );
-                                            }
+                        }
+
+                        let entries = files.as_ref().unwrap();
+                        fn render_entries(
+                            ui: &mut egui::Ui,
+                            frame: &mut eframe::Frame,
+                            entries: &[ProjectFilesEntry],
+                            open_entries: &mut HashMap<Utf8PathBuf, Box<dyn ProjectFileDialog>>,
+                        ) {
+                            for entry in entries {
+                                match entry {
+                                    ProjectFilesEntry::File(file) => {
+                                        let mut is_open = open_entries.contains_key(file);
+                                        let was_open = is_open;
+                                        ui.checkbox(&mut is_open, file.file_name().unwrap());
+                                        if was_open && !is_open {
+                                            open_entries.remove(file);
+                                        } else if !was_open && is_open {
+                                            open_entries.insert(
+                                                file.clone(),
+                                                create_dialog_for_file(file, frame),
+                                            );
                                         }
-                                        ProjectFilesEntry::Directory((dir, inner_entries)) => {
-                                            ui.collapsing(dir.file_name().unwrap(), |ui| {
-                                                match get_dir_dialog(dir, inner_entries) {
-                                                    Some(kind) => {
-                                                        let mut is_open =
-                                                            open_entries.contains_key(dir);
-                                                        let was_open = is_open;
-                                                        ui.checkbox(
-                                                            &mut is_open,
-                                                            format!(
-                                                                "({}) {}",
-                                                                kind,
-                                                                dir.file_name().unwrap()
-                                                            ),
+                                    }
+                                    ProjectFilesEntry::Directory((dir, inner_entries)) => {
+                                        ui.collapsing(dir.file_name().unwrap(), |ui| {
+                                            match get_dir_dialog(dir, inner_entries) {
+                                                Some(kind) => {
+                                                    let mut is_open =
+                                                        open_entries.contains_key(dir);
+                                                    let was_open = is_open;
+                                                    ui.checkbox(
+                                                        &mut is_open,
+                                                        format!(
+                                                            "({}) {}",
+                                                            kind,
+                                                            dir.file_name().unwrap()
+                                                        ),
+                                                    );
+                                                    if was_open && !is_open {
+                                                        open_entries.remove(dir);
+                                                    } else if !was_open && is_open {
+                                                        open_entries.insert(
+                                                            dir.clone(),
+                                                            kind.create_dialog(dir, frame),
                                                         );
-                                                        if was_open && !is_open {
-                                                            open_entries.remove(dir);
-                                                        } else if !was_open && is_open {
-                                                            open_entries.insert(
-                                                                dir.clone(),
-                                                                kind.create_dialog(dir, frame),
-                                                            );
-                                                        }
                                                     }
-                                                    None => {}
                                                 }
-                                                render_entries(
-                                                    ui,
-                                                    frame,
-                                                    inner_entries,
-                                                    open_entries,
-                                                );
-                                            });
-                                        }
+                                                None => {}
+                                            }
+                                            render_entries(ui, frame, inner_entries, open_entries);
+                                        });
                                     }
                                 }
                             }
-                            render_entries(ui, frame, entries, open_files);
                         }
+                        render_entries(ui, frame, entries, open_files);
                     });
             });
 

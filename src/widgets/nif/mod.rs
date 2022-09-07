@@ -178,7 +178,7 @@ impl NifWidget {
 
                 self.dolly_camera
                     .driver_mut::<Position>()
-                    .translate(move_vec * dt * 100.0);
+                    .translate(move_vec * dt * 50.0);
 
                 self.dolly_camera.update(dt)
             };

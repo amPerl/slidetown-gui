@@ -1,3 +1,7 @@
+use std::str::FromStr;
+
+use camino::Utf8PathBuf;
+
 mod app;
 mod dialogs;
 mod project;
@@ -11,9 +15,13 @@ fn main() {
         depth_buffer: 32,
         ..Default::default()
     };
+    let quick_open_path = std::env::args()
+        .skip(1)
+        .flat_map(|s| Utf8PathBuf::from_str(&s).ok())
+        .next();
     eframe::run_native(
         "slidetown",
         native_options,
-        Box::new(|cc| Box::new(app::SlidetownApp::new(cc))),
+        Box::new(|cc| Box::new(app::SlidetownApp::new(cc, quick_open_path))),
     );
 }

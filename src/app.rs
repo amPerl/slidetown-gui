@@ -1,4 +1,4 @@
-use camino::Utf8Path;
+use camino::{Utf8Path, Utf8PathBuf};
 use eframe::egui;
 use serde::{Deserialize, Serialize};
 
@@ -17,19 +17,39 @@ pub struct SlidetownApp {
     recent_projects: Vec<ProjectFilePath>,
     current_project_dialog: Option<ProjectDialog>,
     new_project_dialog: Option<NewProjectDialog>,
-    #[serde(skip)]
-    initialized: bool,
 }
 
 impl SlidetownApp {
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>, quick_open_path: Option<Utf8PathBuf>) -> Self {
         cc.egui_ctx.set_visuals(egui::Visuals::dark());
 
-        if let Some(storage) = cc.storage {
-            return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
+        let mut app: Self = if let Some(storage) = cc.storage {
+            eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default()
+        } else {
+            Default::default()
+        };
+
+        if let Some(path) = quick_open_path {
+            if let Ok(metadata) = std::fs::metadata(&path) {
+                if metadata.is_dir() {
+                    app.set_current_project(Project::new(path));
+                } else {
+                    let parent_dir = path.parent().unwrap().to_path_buf();
+                    app.set_current_project(Project::new(parent_dir));
+                    app.current_project_dialog
+                        .as_mut()
+                        .unwrap()
+                        .request_open_file(path);
+                }
+            } else {
+                eprintln!(
+                    "path {:?} was specified, but file/directory did not exist",
+                    path
+                );
+            }
         }
 
-        Default::default()
+        app
     }
 }
 
@@ -39,10 +59,6 @@ impl eframe::App for SlidetownApp {
     }
 
     fn update(&mut self, ctx: &eframe::egui::Context, frame: &mut eframe::Frame) {
-        if !self.initialized {
-            frame.set_window_title(&format!("slidetown v{}", env!("CARGO_PKG_VERSION")));
-            self.initialized = true;
-        }
         egui::TopBottomPanel::top("menu").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("Project", |ui| {
