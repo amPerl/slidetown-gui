@@ -4,20 +4,21 @@ version = "0.1.0"
 authors = ["amPerl"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[workspace]
+members = ["crates/*", "examples/*"]
 
 [dependencies]
 anyhow = "1.0.58"
 camino = { version = "1.0.9", features = ["serde1"] }
-eframe = { git = "https://github.com/amPerl/egui", branch = "feature/wgpu-depth-texture", default-features = false, features = ["default_fonts", "persistence", "wgpu"] }
+eframe = { version = "0.20.1", features = ["default_fonts", "persistence", "wgpu"] }
 native-dialog = "0.6.3"
 serde = { version = "1.0.137", features = ["derive"] }
 serde_json = "1.0.82"
-slidetown = { git = "https://github.com/amPerl/slidetown" }
+slidetown = { git = "https://github.com/amPerl/slidetown", rev = "21daace4069dedc970eed070de4da271a3efb12f" }
 nif = { git = "https://github.com/amPerl/nif" }
+nif-wgpu = { path = "crates/nif-wgpu" }
 bytemuck = "1.12.1"
 glam = { version = "0.21.3", features = ["bytemuck"] }
-egui-gizmo = { git = "https://github.com/amPerl/egui-gizmo", branch = "egui-fork" }
 dolly = { git = "https://github.com/amPerl/dolly", branch = "z-up" }
 
 [features]

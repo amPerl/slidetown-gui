@@ -9,25 +9,18 @@ use eframe::egui;
 use nif::Nif;
 use slidetown::parsers::{lbf::Lbf, lf::Lf, lif::Lif, lof::Lof, loi::Loi};
 
-use crate::widgets::nif::{untextured_mesh::UntexturedMeshInstance, NifWidget};
-
 use super::ProjectFileDialog;
 
 #[derive(Debug)]
 pub struct WorldDirDialog {
     dir_path: Utf8PathBuf,
-    nif_widget: NifWidget,
     available_tracks: Vec<String>,
 }
 
 impl WorldDirDialog {
     fn load_track(&mut self, name: &str, frame: &mut eframe::Frame) {
         let render_state = frame.wgpu_render_state().unwrap();
-        let Self {
-            dir_path,
-            nif_widget,
-            ..
-        } = self;
+        let Self { dir_path, .. } = self;
 
         nif_widget.clear_nifs(render_state);
 
@@ -106,11 +99,7 @@ impl WorldDirDialog {
                 let rotation = glam::Quat::from_mat3(&rotation_mat);
                 let scale = object.scale;
                 let entry = instances_by_model_index.entry(object.model_table_index);
-                entry.or_default().push(UntexturedMeshInstance {
-                    position,
-                    rotation,
-                    scale,
-                });
+                entry.or_default().push((position, rotation, scale));
                 // if object.object_extra_index >= 0 {
                 //     let extra = loi
                 //         .object_extras

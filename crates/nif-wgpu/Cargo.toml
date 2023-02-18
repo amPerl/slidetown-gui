@@ -1,0 +1,13 @@
+[package]
+name = "nif-wgpu"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+anyhow = "1.0.58"
+nif = { git = "https://github.com/amPerl/nif" }
+slotmap = "1.0.6"
+wgpu = "0.14.2"
+bytemuck = "1.12.1"
+glam = { version = "0.21.3", features = ["bytemuck"] }

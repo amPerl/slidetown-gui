@@ -1,0 +1,11 @@
+[package]
+name = "nif-viewer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.58"
+camino = "1.0.9"
+eframe = { version = "0.20.1", default-features = false, features = ["default_fonts", "wgpu"] }
+nif = { git = "https://github.com/amPerl/nif" }
+nif-wgpu = { path = "../../crates/nif-wgpu" }

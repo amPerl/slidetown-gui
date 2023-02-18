@@ -7,6 +7,7 @@ pub mod lbf;
 pub mod levelmodifier;
 pub mod lf;
 pub mod nif;
+pub mod vehicles;
 pub mod world;
 
 pub fn create_dialog_for_file(
@@ -30,12 +31,14 @@ pub fn create_dialog_for_file(
 
 pub enum DirDialogKind {
     World,
+    Vehicles,
 }
 
 impl std::fmt::Display for DirDialogKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             DirDialogKind::World => f.write_str("World"),
+            DirDialogKind::Vehicles => f.write_str("Vehicles"),
         }
     }
 }
@@ -48,6 +51,9 @@ impl DirDialogKind {
     ) -> Box<dyn ProjectFileDialog> {
         match self {
             DirDialogKind::World => Box::new(world::WorldDirDialog::create(path.clone(), frame)),
+            DirDialogKind::Vehicles => {
+                Box::new(vehicles::VehiclesDialog::create(path.clone(), frame))
+            }
         }
     }
 }
@@ -62,8 +68,19 @@ pub fn get_dir_dialog(_path: &Utf8PathBuf, entries: &[ProjectFilesEntry]) -> Opt
         })
     }
 
+    fn has_dir(name: &str, entries: &[ProjectFilesEntry]) -> bool {
+        entries.iter().any(|e| match e {
+            ProjectFilesEntry::Directory((d, _)) => d.file_name().unwrap() == name,
+            _ => false,
+        })
+    }
+
     if has_file("terrain0.lf", entries) && has_file("blockObj0.LBF", entries) {
         return Some(DirDialogKind::World);
+    }
+
+    if has_dir("vehicle", entries) && has_dir("Init", entries) {
+        return Some(DirDialogKind::Vehicles);
     }
 
     None
